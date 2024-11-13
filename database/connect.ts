@@ -13,10 +13,11 @@ let cachedClient: MongoClient | null = null;
 let cachedDb: Db | null = null;
 
 const connectDb = async () => {
+    try{
     if (cachedClient && cachedDb) {
         return { client: cachedClient, database: cachedDb };
     }
-
+    
     const client = new MongoClient(uri);
     await client.connect();
     const database = client.db(dbName);
@@ -24,7 +25,14 @@ const connectDb = async () => {
     cachedClient = client;
     cachedDb = database;
 
+    console.log("Successfully connected to MongoDB.");
     return { client, database };
+
+    }catch (error){
+        console.error("MongoDB connection error:", error);
+        throw new Error("Failed to connect to MongoDB");
+    }
+
 };
 
 export default connectDb;
