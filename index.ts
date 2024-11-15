@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import connectDb from './database/connect';
 import userRouter from './route/userRoute';
+import forumRouter from './route/forumRoute';
 
 dotenv.config();
 connectDb();
@@ -19,6 +20,7 @@ app.get('/', (req, res) => {
   });
 
 app.use('/user',userRouter)
+app.use('/forum', forumRouter)
 
 app.listen(PORT, () => {
     console.log(`Server Listerning to ${PORT}`)
