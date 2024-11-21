@@ -4,18 +4,18 @@ import jwToken from "../utils/jwToken";
 import bcrypt from "bcryptjs";
 import connectDb from "../database/connect";
 
-const collectionName = 'user'
+const collectionName = 'user';
 
 export const postUser = async (req: Request, res: Response) => {
     try{
         const { name, username, email, password } = req.body;
         if (!username || !password || !name || !email) {
-            res.status(400).json({ message: "Username and password are required." });
+            res.status(400).json({ message: "data are required." });
             return;
         }
         const id = uuidv4();
         const hashedPassword = await bcrypt.hash(password, 10)
-        const {client, database} = await connectDb();
+        const {database} = await connectDb();
         const col = database.collection(collectionName)
 
         const data = {
@@ -42,7 +42,7 @@ export const postUser = async (req: Request, res: Response) => {
 export const getUserByUsername = async (req: Request, res: Response) => {
     try{
         const { username, password } = req.body;
-        const {client, database} = await connectDb();
+        const {database} = await connectDb();
         const col = database.collection(collectionName);
 
         const data = await col.findOne({ username });
@@ -72,6 +72,35 @@ export const getUserByUsername = async (req: Request, res: Response) => {
 
 }
 
+export const getUserById = async (req: Request, res: Response) => {
+    const { userId } = req.params;
+
+    if(!userId){
+        res.status(400).json({ message: "User ID is required." });
+        return
+    }
+
+    const { database } = await connectDb();
+    const col = database.collection(collectionName);
+
+    const user = await col.findOne({ userId });
+    if (!user) {
+        res.status(404).json({ message: "User not found." });
+        return
+    }
+
+    res.status(200).json({
+        message: "User retrieved successfully.",
+        user: {
+            userId: user.userId,
+            name: user.name,
+            username: user.username,
+            email: user.email,
+        },
+    });
+    return 
+}
+
 export const changeUser = async (req: Request, res: Response) => {
     try {
         const { userId ,username, name, password, profilePic, email } = req.body;
@@ -81,7 +110,7 @@ export const changeUser = async (req: Request, res: Response) => {
             return;
         }
 
-        const { client, database } = await connectDb();
+        const {database} = await connectDb();
         const col = database.collection(collectionName);
 
         const updateFields: Record<string, any> = {};
