@@ -1,9 +1,10 @@
 import { Router } from "express";
-import { getForumById, postFroum } from "../controller/forumController";
+import { getForumById, postFroum, replyForum } from "../controller/forumController";
 
 const forumRouter = Router();
 
 forumRouter.post('/post', postFroum)
-forumRouter.get('/:id', getForumById)
+forumRouter.get('/:forumId', getForumById)
+forumRouter.post('/:forumId/reply', replyForum)
 
 export default forumRouter 

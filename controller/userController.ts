@@ -103,7 +103,7 @@ export const getUserById = async (req: Request, res: Response) => {
 
 export const changeUser = async (req: Request, res: Response) => {
     try {
-        const { userId ,username, name, password, profilePic, email } = req.body;
+        const { userId ,username, name, password, userPP, email } = req.body;
 
         if (!userId) {
             res.status(400).json({ message: "userId is required for update" });
@@ -117,7 +117,7 @@ export const changeUser = async (req: Request, res: Response) => {
         if (username) updateFields.username = username;
         if (name) updateFields.name = name;
         if (email) updateFields.email = email;
-        if (profilePic) updateFields.profilePic = profilePic;
+        if (userPP) updateFields.profilePic = userPP;
         if (password) {
             updateFields.password = await bcrypt.hash(password, 10);
         }
