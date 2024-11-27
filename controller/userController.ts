@@ -18,6 +18,12 @@ export const postUser = async (req: Request, res: Response) => {
         const {database} = await connectDb();
         const col = database.collection(collectionName)
 
+        const existingUser = await col.findOne({ username });
+        if (existingUser) {
+            res.status(400).json({ message: "Username already exists." });
+            return;
+        }
+
         const data = {
             userId: id,
             name,
@@ -44,12 +50,15 @@ export const getUserByUsername = async (req: Request, res: Response) => {
         const { username, password } = req.body;
         const {database} = await connectDb();
         const col = database.collection(collectionName);
-
+        console.log(req.body)
         const data = await col.findOne({ username });
         if (!data) {
             res.status(404).json({ message: 'User not found' });
             return;
         }
+
+        console.log('Stored Password:', data.password);
+        console.log('Is Password Valid:', await bcrypt.compare(password, data.password));
 
         const isPasswordValid = await bcrypt.compare(password, data.password);
         if (!isPasswordValid) {

@@ -6,49 +6,56 @@ import { v2 as cloudinary } from "cloudinary";
 
 const collectionName = 'forum'
 
-export const postFroum = async (req: Request, res: Response) =>{
-    try{
-        const { postedBy, title, text } = req.body;
-        if ( !text )console.log("PostedBy and Text is required");
+export const postForum = async (req: Request, res: Response) => {
+    try {
+        const { postedBy, title, text, img, userId } = req.body;
 
-        const id = uuid();
-        const { database } = await connectDb();
-        const colForum = database.collection(collectionName);
-        const colUser = database.collection('user');
-        const user = await colUser.findOne({ username: postedBy });
-        if (!user) {
-			res.status(404).json({ error: "User not found" });
-            return;
-		}
-
-        let img = req.body
-        if (img) {
-			const uploadedResponse = await cloudinary.uploader.upload(img);
-			img = uploadedResponse.secure_url;
-		}
-
-        const data = {
-            postedBy: user,
-            forumId: id,
-            title,
-            text,
-            createdAt : new Date()
+        if (!postedBy || !text) {
+            res.status(400).json({ message: "postedBy and text are required" });
+            return
         }
 
-        await colForum.insertOne(data)
+        const id = uuid();
+
+        const { database } = await connectDb();
+        const colForum = database.collection(collectionName);
+
+        let imgUrl = null;
+        if (img) {
+            const uploadedResponse = await cloudinary.uploader.upload(img, {
+                folder: 'jagogitar', 
+                resource_type: 'image',
+            });
+            imgUrl = uploadedResponse.secure_url;
+        }
+
+        const data = {
+            forumId: id,
+            userId,
+            postedBy,
+            title,
+            text,
+            imgUrl,
+            createdAt: new Date(),
+        };
+
+        await colForum.insertOne(data);
 
         res.status(200).json({
-            message: 'Posting forum success',
-            data:{
+            message: 'Forum post created successfully',
+            data: {
                 forumId: id,
+                userId,
                 title,
                 text,
-            }
-        })
-    } catch (e){
-        console.log("Failed to post user");
+                imgUrl,
+            },
+        });
+    } catch (error) {
+        console.error("Failed to post forum:", error);
+        res.status(500).json({ message: "Failed to post forum", error });
     }
-}
+};
 
 export const getForumById = async (req: Request, res: Response) => {
     try {
@@ -64,12 +71,9 @@ export const getForumById = async (req: Request, res: Response) => {
         const data = await col.findOne({ forumId });
 
         if(!data){
-            res.status(404).json({ message: "Data forum found." });
+            res.status(404).json({ message: "Data forum not found." });
             return
-        }
-        // if (!postedBy || !text) {
-		// 	res.status(400).json({ error: "Postedby and text fields are required" });
-		// }
+    	}
 
         res.status(200).json({
             message: 'get forum success',
@@ -78,6 +82,24 @@ export const getForumById = async (req: Request, res: Response) => {
     } catch (e){
         console.log("Failed to get forum");
     }
+}
+
+export const getAllForum = async (req: Request, res: Response) => {
+    try {
+        const { database } = await connectDb();
+        const col = database.collection(collectionName)
+        const data = await col.find().toArray()
+        res.status(200).json({
+            message: 'get all forum success',
+            data
+            })
+            } catch (e){
+                console.error("Failed to get all forums:", e); 
+                res.status(500).json({
+                    message: 'Failed to get all forums',
+                    error: e, 
+                });
+            }
 }
 
 export const replyForum = async (req: Request, res: Response) => {
