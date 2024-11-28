@@ -84,6 +84,27 @@ export const getForumById = async (req: Request, res: Response) => {
     }
 }
 
+export const getForumByUserId = async(req: Request, res: Response) => {
+    try {
+        const { userId } = req.params;
+        const { database } = await connectDb();
+        const col = database.collection(collectionName)
+
+        const data = await col.find({ userId }).toArray()
+        if(!data || data.length === 0) {
+            res.status(404).json({ message: "Data forum not found." });
+            return
+        }
+
+        res.status(200).json({
+            message: 'get forum success',
+            data
+        })
+    } catch(e){
+        console.error(e)
+    }
+}
+
 export const getAllForum = async (req: Request, res: Response) => {
     try {
         const { database } = await connectDb();
