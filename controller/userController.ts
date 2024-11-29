@@ -7,29 +7,33 @@ import connectDb from "../database/connect";
 const collectionName = 'user';
 
 export const postUser = async (req: Request, res: Response) => {
+    let client;
     try{
-        const { name, username, email, password } = req.body;
+        const { name, username, email, password, status = "pending", role = "client" } = req.body;
         if (!username || !password || !name || !email) {
             res.status(400).json({ message: "data are required." });
             return;
         }
         const id = uuidv4();
         const hashedPassword = await bcrypt.hash(password, 10)
-        const {database} = await connectDb();
+        const { client: mongoClient, database } = await connectDb();
         const col = database.collection(collectionName)
-
         const existingUser = await col.findOne({ username });
+        client = mongoClient;
         if (existingUser) {
             res.status(400).json({ message: "Username already exists." });
             return;
         }
+
 
         const data = {
             userId: id,
             name,
             username, 
             password: hashedPassword,
-            email
+            email,
+            status,
+            role
         }
 
         await col.insertOne(data);
@@ -46,10 +50,12 @@ export const postUser = async (req: Request, res: Response) => {
 }
 
 export const getUserByUsername = async (req: Request, res: Response) => {
+    let client;
     try{
         const { username, password } = req.body;
-        const {database} = await connectDb();
+        const {client : mongoClient,database} = await connectDb();
         const col = database.collection(collectionName);
+        client = mongoClient;
         console.log(req.body)
         const data = await col.findOne({ username });
         if (!data) {
@@ -82,16 +88,16 @@ export const getUserByUsername = async (req: Request, res: Response) => {
 }
 
 export const getUserById = async (req: Request, res: Response) => {
+    let client;
     const { userId } = req.params;
-
     if(!userId){
         res.status(400).json({ message: "User ID is required." });
         return
     }
 
-    const { database } = await connectDb();
+    const { client: mongoClient, database } = await connectDb();
     const col = database.collection(collectionName);
-
+    client = mongoClient;
     const user = await col.findOne({ userId });
     if (!user) {
         res.status(404).json({ message: "User not found." });
@@ -111,6 +117,7 @@ export const getUserById = async (req: Request, res: Response) => {
 }
 
 export const changeUser = async (req: Request, res: Response) => {
+    let client;
     try {
         const { userId ,username, name, password, userPP, email } = req.body;
 
@@ -119,9 +126,9 @@ export const changeUser = async (req: Request, res: Response) => {
             return;
         }
 
-        const {database} = await connectDb();
+        const { client: mongoClient, database} = await connectDb();
         const col = database.collection(collectionName);
-
+        client = mongoClient;
         const updateFields: Record<string, any> = {};
         if (username) updateFields.username = username;
         if (name) updateFields.name = name;
