@@ -24,7 +24,12 @@ export const postUser = async (req: Request, res: Response) => {
             res.status(400).json({ message: "Username already exists." });
             return;
         }
-
+        if (password) {
+            if (password.length < 8) {
+                res.status(400).json({ message: "Password must be at least 8 characters long" });
+                return;
+            }
+        }
 
         const data = {
             userId: id,
@@ -119,7 +124,8 @@ export const getUserById = async (req: Request, res: Response) => {
 export const changeUser = async (req: Request, res: Response) => {
     let client;
     try {
-        const { userId ,username, name, password, userPP, email } = req.body;
+        const { userId } = req.params
+        const { username, name, password, userPP, email } = req.body;
 
         if (!userId) {
             res.status(400).json({ message: "userId is required for update" });
@@ -135,6 +141,10 @@ export const changeUser = async (req: Request, res: Response) => {
         if (email) updateFields.email = email;
         if (userPP) updateFields.profilePic = userPP;
         if (password) {
+            if (password.length < 8) {
+                res.status(400).json({ message: "Password must be at least 6 characters long" });
+                return;
+            }
             updateFields.password = await bcrypt.hash(password, 10);
         }
 
@@ -148,9 +158,11 @@ export const changeUser = async (req: Request, res: Response) => {
             return
         }
 
+        const updatedUser = await col.findOne({ userId });
+
         res.status(200).json({
             message: "User updated successfully",
-            updatedFields: updateFields,
+            updatedUser,
         });
     } catch (e) {
         console.error("Failed to update user:", e);

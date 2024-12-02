@@ -7,5 +7,6 @@ userRouter.post('/register', postUser);
 userRouter.post('/login', getUserByUsername); 
 userRouter.put('/update', changeUser); 
 userRouter.get('/:userId', getUserById)
+userRouter.put('/:userId', changeUser)
 
 export default userRouter

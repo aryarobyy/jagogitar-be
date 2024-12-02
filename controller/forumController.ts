@@ -177,3 +177,32 @@ export const replyForum = async (req: Request, res: Response) => {
         res.status(500).json({ error: "Failed to reply to forum", details: e });
     }
 }
+
+export const delForum = async (req: Request,  res: Response) => {
+    try{
+        const { forumId } = req.params
+        const { database } = await connectDb();
+        const col = database.collection(collectionName);
+        const data = await col.findOne({ forumId });
+        if(!data){
+            res.status(404).json({ message: "Forum not found" });
+            return
+        }
+
+        if (data.imgUrl) {
+            const imgParts = data.imgUrl.split("/");
+            const imgName = imgParts.pop();
+            const imgId = imgName.split(".")[0];
+            await cloudinary.uploader.destroy(imgId);
+        }
+
+        const response = await col.deleteOne({ forumId });
+        res.status(200).json({ 
+            message: "Post deleted successfully" ,
+            response
+        });
+        return
+    } catch (e){
+        console.error("Failed to delete forum", e);
+    }
+}

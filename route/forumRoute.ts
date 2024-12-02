@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getAllForum, getForumById, getForumByUserId, postForum, replyForum } from "../controller/forumController";
+import { delForum, getAllForum, getForumById, getForumByUserId, postForum, replyForum } from "../controller/forumController";
 
 const forumRouter = Router();
 
@@ -8,5 +8,6 @@ forumRouter.get('/all', getAllForum)
 forumRouter.get('/:forumId', getForumById)
 forumRouter.post('/user/:userId/reply', replyForum)
 forumRouter.get('/user/:userId', getForumByUserId)
+forumRouter.delete('/:forumId', delForum)
 
 export default forumRouter 
