@@ -5,6 +5,7 @@ import { v2 as cloudinary } from 'cloudinary';
 import connectDb from './database/connect';
 import userRouter from './route/userRoute';
 import forumRouter from './route/forumRoute';
+import courseRouter from './route/courseRoute';
 
 dotenv.config();
 connectDb();
@@ -28,6 +29,8 @@ app.get('/', (req, res) => {
 
 app.use('/user',userRouter)
 app.use('/forum', forumRouter)
+app.use('/course', courseRouter)
+app.use(express.json({ limit: "10mb" })); 
 
 app.listen(PORT, () => {
     console.log(`Server Listerning to ${PORT}`)

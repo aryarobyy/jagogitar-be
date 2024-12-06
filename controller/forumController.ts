@@ -61,11 +61,9 @@ export const getForumById = async (req: Request, res: Response) => {
     try {
         const { forumId } = req.params;
         if (!forumId){
-            console.log(forumId)
             res.status(400).json({ message: "Forum not found." });
             return
         }
-        // let { img } = req.body;
         const { database } = await connectDb();
         const col = database.collection(collectionName);
         const data = await col.findOne({ forumId });
@@ -111,7 +109,7 @@ export const getAllForum = async (req: Request, res: Response) => {
         const col = database.collection(collectionName)
         const data = await col.find().toArray()
         res.status(200).json({
-            message: 'get all forum success',
+            message: 'get all forums success',
             data
             })
             } catch (e){
