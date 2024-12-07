@@ -56,7 +56,7 @@ export const postUser = async (req: Request, res: Response) => {
     }
 }
 
-export const getUserByUsername = async (req: Request, res: Response) => {
+export const loginUser = async (req: Request, res: Response) => {
     let client;
     try{
         const { username, password } = req.body;
@@ -102,20 +102,15 @@ export const getUserById = async (req: Request, res: Response) => {
     const { client: mongoClient, database } = await connectDb();
     const col = database.collection(collectionName);
     client = mongoClient;
-    const user = await col.findOne({ userId });
-    if (!user) {
+    const data = await col.findOne({ userId });
+    if (!data) {
         res.status(404).json({ message: "User not found." });
         return
     }
 
     res.status(200).json({
         message: "User retrieved successfully.",
-        user: {
-            userId: user.userId,
-            name: user.name,
-            username: user.username,
-            email: user.email,
-        },
+        data,
     });
     return 
 }
@@ -137,8 +132,14 @@ export const changeUser = async (req: Request, res: Response) => {
         const updateFields: Record<string, any> = {};
         if (username) updateFields.username = username;
         if (name) updateFields.name = name;
-        if (email) updateFields.email = email;
-        if (userPP) updateFields.profilePic = userPP;
+        if (email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                res.status(400).json({ message: "Invalid email format" });
+                return 
+            }
+            updateFields.email = email;
+        }
         if (status) updateFields.status = status;
         if (role) updateFields.role = role;
         if (password) {
@@ -149,6 +150,21 @@ export const changeUser = async (req: Request, res: Response) => {
             updateFields.password = await bcrypt.hash(password, 10);
         }
 
+        if (userPP) {
+            try {
+                const uploadedResponse = await cloudinary.uploader.upload(userPP, {
+                    folder: "jagogitar",
+                    resource_type: "image",
+                    max_file_size: 5 * 1024 * 1024,
+                    allowed_formats: ['jpg', 'png', 'jpeg', 'gif']
+                });
+                updateFields.userPP = uploadedResponse.secure_url;
+            } catch (error) {
+                console.error("Cloudinary upload error:", error);
+                res.status(500).json({ message: "Failed to upload image" });
+                return 
+            }
+        }
         const result = await col.updateOne(
             { userId },
             { $set: updateFields } 
@@ -258,3 +274,28 @@ export const regisMentor = async (req: Request, res: Response) => {
         res.status(500).json({ message: "Internal server error" });
     }
 };
+
+
+export const getUserByUsername = async (req: Request, res: Response) => {
+    let client;
+    const { username } = req.params;
+    if(!username){
+        res.status(400).json({ message: "User ID is required." });
+        return
+    }
+
+    const { client: mongoClient, database } = await connectDb();
+    const col = database.collection(collectionName);
+    client = mongoClient;
+    const data = await col.findOne({ username });
+    if (!data) {
+        res.status(404).json({ message: "User not found." });
+        return
+    }
+
+    res.status(200).json({
+        message: "User retrieved successfully.",
+        data,
+    });
+    return 
+}
