@@ -3,8 +3,8 @@ import { MongoClient, Db } from 'mongodb';
 
 dotenv.config();
 
-const uri: string | undefined = process.env.MONGO_URI;
-const dbName: string | undefined = process.env.MONGODB;
+const uri: string = process.env.MONGO_URI || "mongodb://localhost:27017";
+const dbName: string = process.env.MONGODB || "test";
 
 if (!uri) throw new Error("Environment variable MONGO_URI tidak ditemukan");
 if (!dbName) throw new Error("Environment variable MONGODB tidak ditemukan");
@@ -15,9 +15,10 @@ let cachedDb: Db | null = null;
 const connectDb = async () => {
     try {
         if (cachedClient && cachedDb) {
-                return { client: cachedClient, database: cachedDb };
+            console.log("Using cached MongoDB connection.");
+            return { client: cachedClient, database: cachedDb };
         }
-        
+
         const client = new MongoClient(uri, {
             connectTimeoutMS: 10000,  
             socketTimeoutMS: 45000,
@@ -30,7 +31,12 @@ const connectDb = async () => {
         console.log("URI: ", uri.replace(/:(.*?)@/, ':****@'));
         console.log("Database: ", dbName);
         await client.connect();
+
         const database = client.db(dbName);
+
+        // Test connection
+        await database.command({ ping: 1 });
+        console.log("MongoDB ping successful.");
 
         cachedClient = client;
         cachedDb = database;
@@ -39,10 +45,17 @@ const connectDb = async () => {
         return { client, database };
 
     } catch (error) {
-        console.error("MongoDB connection error details:", error);
+        console.error("Failed to connect to MongoDB. Check the following:");
+        console.error("- Is the database URI correct?");
+        console.error("- Is the database name correct?");
+        console.error("- Are IP whitelists properly configured?");
+        console.error("Error details:", error);
 
         throw new Error(`Failed to connect to MongoDB: ${error}`);
     }
 };
+
+export const getClient = () => cachedClient;
+export const getDb = () => cachedDb;
 
 export default connectDb;
