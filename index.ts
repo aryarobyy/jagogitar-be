@@ -3,9 +3,9 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { v2 as cloudinary } from 'cloudinary';
 import connectDb from './database/connect.js';
-import userRouter from './route/userRoute';
-import forumRouter from './route/forumRoute';
-import courseRouter from './route/courseRoute';
+import userRouter from './route/userRoute.js';
+import forumRouter from './route/forumRoute.js';
+import courseRouter from './route/courseRoute.js';
 
 dotenv.config();
 connectDb();
