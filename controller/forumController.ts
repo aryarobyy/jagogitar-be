@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import connectDb from "../database/connect.js";
 import { v4 as uuid } from "uuid";
-import { Forum } from "../interfaces/forumInterface";
+import { Forum } from "../interfaces/forumInterface.js";
 import { v2 as cloudinary } from "cloudinary";
 
 const collectionName = 'forum'

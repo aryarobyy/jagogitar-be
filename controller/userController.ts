@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
-import jwToken from "../utils/jwToken";
+import jwToken from "../utils/jwToken.js";
 import bcrypt from "bcryptjs";
 import connectDb from "../database/connect.js";
 import { v2 as cloudinary } from "cloudinary";
