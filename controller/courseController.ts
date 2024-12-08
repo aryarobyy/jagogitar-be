@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { v4 } from "uuid";
-import connectDb from "../database/connect";
+import connectDb from "../database/connect.js";
 import { v2 as cloudinary } from "cloudinary";
 
 const collectionName = 'course';

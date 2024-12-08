@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { editeCourse, getAllCourse, getCourse, postCourse } from "../controller/courseController";
+import { editeCourse, getAllCourse, getCourse, postCourse } from "../controller/courseController.js";
 
 const courseRouter = Router()
 
