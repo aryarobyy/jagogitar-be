@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { v2 as cloudinary } from 'cloudinary';
-import connectDb from './database/connect';
+import connectDb from './database/connect.js';
 import userRouter from './route/userRoute';
 import forumRouter from './route/forumRoute';
 import courseRouter from './route/courseRoute';
