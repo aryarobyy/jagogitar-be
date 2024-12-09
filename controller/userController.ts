@@ -10,7 +10,7 @@ const collectionName = 'user';
 export const postUser = async (req: Request, res: Response) => {
     let client;
     try{
-        const { name, username, email, password, userPP, status = "userPending", role = "pending" } = req.body;
+        const { name, username, email, password, userPP, status , role } = req.body;
         if (!username || !password || !name || !email) {
             res.status(400).json({ message: "data are required." });
             return;
