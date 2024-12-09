@@ -30,8 +30,6 @@ app.use('/user', userRouter)
 app.use('/forum', forumRouter)
 app.use('/course', courseRouter)
 
-export default app;
-
 if (process.env.NODE_ENV !== 'production') {
     app.listen(PORT, () => {
         console.log(`Server Listening to ${PORT}`)

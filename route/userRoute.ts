@@ -8,8 +8,8 @@ userRouter.post('/login', loginUser);
 userRouter.post('/mentor', regisMentor); 
 userRouter.put('/update', changeUser); 
 userRouter.get('/all', getAllUser)
-userRouter.get('/:username', getUserByUsername)
-userRouter.get('/:userId', getUserById)
+userRouter.get('/id/:userId', getUserById)
+userRouter.get('/username/:username', getUserByUsername)
 userRouter.put('/:userId', changeUser)
 userRouter.delete('/:userId', delUser)
 

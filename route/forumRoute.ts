@@ -6,7 +6,7 @@ const forumRouter = Router();
 forumRouter.post('/post', postForum)
 forumRouter.get('/all', getAllForum)
 forumRouter.get('/:forumId', getForumById)
-forumRouter.post('/user/:userId/reply', replyForum)
+forumRouter.post('/reply', replyForum)
 forumRouter.get('/user/:userId', getForumByUserId)
 forumRouter.delete('/:forumId', delForum)
 

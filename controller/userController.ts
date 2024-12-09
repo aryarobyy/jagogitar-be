@@ -66,7 +66,7 @@ export const loginUser = async (req: Request, res: Response) => {
         console.log(req.body)
         const data = await col.findOne({ username });
         if (!data) {
-            res.status(404).json({ message: 'User not found' });
+            res.status(404).json({ message: 'Data user not found' });
             return;
         }
 
@@ -92,28 +92,30 @@ export const loginUser = async (req: Request, res: Response) => {
 }
 
 export const getUserById = async (req: Request, res: Response) => {
-    let client;
-    const { userId } = req.params;
-    if(!userId){
-        res.status(400).json({ message: "User ID is required." });
-        return
-    }
+    try {
+        const { userId } = req.params;
+        if (!userId){
+            res.status(400).json({ message: "user id not found." });
+            return
+        }
+        const { database } = await connectDb();
+        const col = database.collection(collectionName);
+        const data = await col.findOne({ userId });
 
-    const { client: mongoClient, database } = await connectDb();
-    const col = database.collection(collectionName);
-    client = mongoClient;
-    const data = await col.findOne({ userId });
-    if (!data) {
-        res.status(404).json({ message: "User not found." });
-        return
-    }
+        if(!data){
+            res.status(404).json({ message: "Data user not found." });
+            return
+    	}
 
-    res.status(200).json({
-        message: "User retrieved successfully.",
-        data,
-    });
-    return 
+        res.status(200).json({
+            message: 'get user success',
+            data
+        })
+    } catch (e){
+        console.log("Failed to get user");
+    }
 }
+
 
 export const changeUser = async (req: Request, res: Response) => {
     let client;
@@ -171,7 +173,7 @@ export const changeUser = async (req: Request, res: Response) => {
         );
 
         if (result.matchedCount === 0) {
-            res.status(404).json({ message: "User not found" });
+            res.status(404).json({ message: "User to update not found" });
             return
         }
 
@@ -214,7 +216,7 @@ export const delUser = async (req: Request, res: Response) => {
         const data = await col.findOne({userId});
 
         if(!data) {
-            res.status(404).json({ message: "User not found" });
+            res.status(404).json({ message: "UserId not found" });
             return
         }
 
@@ -252,7 +254,7 @@ export const regisMentor = async (req: Request, res: Response) => {
 
         const existingUser = await col.findOne({ userId });
         if (!existingUser) {
-            res.status(404).json({ message: "User not found." });
+            res.status(404).json({ message: "Mentor not found." });
             return;
         }
 
@@ -289,7 +291,7 @@ export const getUserByUsername = async (req: Request, res: Response) => {
     client = mongoClient;
     const data = await col.findOne({ username });
     if (!data) {
-        res.status(404).json({ message: "User not found." });
+        res.status(404).json({ message: "Username not found." });
         return
     }
 

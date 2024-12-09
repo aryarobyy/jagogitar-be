@@ -43,13 +43,7 @@ export const postForum = async (req: Request, res: Response) => {
 
         res.status(200).json({
             message: 'Forum post created successfully',
-            data: {
-                forumId: id,
-                userId,
-                title,
-                text,
-                imgUrl,
-            },
+            data,
         });
     } catch (error) {
         console.error("Failed to post forum:", error);
@@ -123,8 +117,7 @@ export const getAllForum = async (req: Request, res: Response) => {
 
 export const replyForum = async (req: Request, res: Response) => {
     try {
-        const { text } = req.body;
-        const {forumId} = req.params
+        const { text, forumId, userId } = req.body;
 
         if (!forumId){
             res.status(400).json({ error: "Forum id is required" });
@@ -148,17 +141,20 @@ export const replyForum = async (req: Request, res: Response) => {
             return;
         }
         
-        const reply = {
+        const id = uuid();
+
+        const data = {
+            commentId: id,
             text,
             username : forum.postedBy,
-            userPP: user.userPP,
+            userId,
             createdAt: new Date(),
         }
         
 
         const result = await col.updateOne(
             { forumId },
-            { $push: { replies: reply }}
+            { $push: { replies: data }}
         );
         
         if (result.modifiedCount === 0) {
@@ -168,7 +164,7 @@ export const replyForum = async (req: Request, res: Response) => {
 
         res.status(200).json({
             message: "Posting comment success",
-            reply
+            data
         });
     } catch (e){
         console.error("Failed to reply forum", e); 

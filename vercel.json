@@ -14,5 +14,8 @@
     ],
     "env": {
       "NODE_OPTIONS": "--experimental-vm-modules"
+    },
+    "dev": {
+      "port": 5000
     }
   }
